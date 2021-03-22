@@ -64,6 +64,8 @@ const App = () => {
   const [inProgress, setInProgress] = React.useState(false)
   const [success, setSuccess] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [gattServer, setGattServer] = React.useState(Object)
+  const [characteristic, setCharacteristic] = React.useState(Object)
   const timer = React.useRef<number>()
 
   React.useEffect(() => {
@@ -97,44 +99,42 @@ const App = () => {
     }
   }
 
-  // Bluetooth control begins
-  let startPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB2, 0x01, 0x2B, 0xDC, 0x00, 0x70, 0xE2, 0xEB, 0x20, 0x01, 0x01, 0x00, 0x00, 0x00, 0x6C, 0x30, 0x00])
-  let endPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB3, 0x00, 0x00])
-
-  // Dirty hack, in order to make BluetoothEnd() be functional without more complex tricks
-  let gattServer: any
-  let txdCharacteristic: any
-
   const logProgress = (x: any) => {
     console.log("Current:", x)
     return x;
   }
 
+  // Bluetooth control begins
   const bluetoothStart = async () => {
     // BLE device (a.k.a peripheral) => GATT server => service => characteristic => writeValue()
+    // Step 1/5
     let bluetoothDevice = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "Water" }],
       optionalServices: [0xF1F0]
     })
     logProgress(bluetoothDevice)
-
-    gattServer = await bluetoothDevice.gatt!.connect()
+    // Step 2/5
+    let gattServer = await bluetoothDevice.gatt!.connect()
+    setGattServer(gattServer)
     logProgress(gattServer)
-
+    // Step 3/5
     let service = await gattServer.getPrimaryService(0xF1F0)
     logProgress(service)
-
+    // Step 4/5
     // Target characteristic name = TXD, uuid = 0xF1F1
-    txdCharacteristic = await service.getCharacteristic(0xF1F1)
-    logProgress(txdCharacteristic)
-
+    let characteristic = await service.getCharacteristic(0xF1F1)
+    setCharacteristic(characteristic)
+    logProgress(characteristic)
+    // Step 5/5
+    const startPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB2, 0x01, 0x2B, 0xDC, 0x00, 0x70, 0xE2, 0xEB, 0x20, 0x01, 0x01, 0x00, 0x00, 0x00, 0x6C, 0x30, 0x00])
     console.log("Writing: ", startPayload)
-    logProgress(await txdCharacteristic.writeValue(startPayload))
+    await characteristic.writeValue(startPayload)
   }
 
   const bluetoothEnd = async () => {
+    const endPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB3, 0x00, 0x00])
     console.log("Writing: ", endPayload)
-    await txdCharacteristic.writeValue(endPayload)
+    await characteristic.writeValue(endPayload)
     await gattServer.disconnect()
   }
 
@@ -143,6 +143,8 @@ const App = () => {
       return // User's cancellation won't be considered as an error
     else if (error.toString().match(/'requestDevice' of undefined/))
       setError("找不到蓝牙硬件，或浏览器不支持。\n\n请参考下方“疑难解答”。")
+    else if (error.toString().match(/User denied the browser permission/))
+      setError("蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请查看“疑难解答”。")
     else
       setError("未知错误：\n" + error.toString() + "\n\n这可能是一个Bug，请截图并反馈给开发者。")
   }
