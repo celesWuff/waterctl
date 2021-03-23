@@ -86,7 +86,6 @@ const App = () => {
       timer.current = window.setTimeout(() => {
         setSuccess(true)
         setInProgress(false)
-        setError("")
       }, 8000)
     }
   }
