@@ -140,7 +140,7 @@ const App = () => {
   const handleBluetoothError = (error: { toString: () => string }) => {
     if (error.toString().match(/User cancelled/))
       return // User's cancellation won't be considered as an error
-    else if (error.toString().match(/'requestDevice' of undefined/))
+    else if (!navigator.bluetooth)
       setError("找不到蓝牙硬件，或浏览器不支持。\n\n请参考下方“疑难解答”。")
     else if (error.toString().match(/User denied the browser permission/))
       setError("蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请查看“疑难解答”。")
