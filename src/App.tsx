@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import { pink, green } from '@material-ui/core/colors'
+import { pink, green, red } from '@material-ui/core/colors'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
@@ -46,6 +46,12 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: green[700],
       },
     },
+    startButtonFailure: {
+      backgroundColor: red[500],
+      '&:hover': {
+        backgroundColor: red[700],
+      },
+    },
   }),
 )
 
@@ -62,7 +68,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const App = () => {
   const classes = useStyles()
   const [inProgress, setInProgress] = React.useState(false)
+  // success & failure: indicates the color of start button
   const [success, setSuccess] = React.useState(false)
+  const [failure, setFailure] = React.useState(false)
+  // error: error messages in pop-up dialog
   const [error, setError] = React.useState("")
   const [gattServer, setGattServer] = React.useState(Object)
   const [characteristic, setCharacteristic] = React.useState(Object)
@@ -76,26 +85,28 @@ const App = () => {
 
   const startButtonClassname = clsx({
     [classes.startButtonSuccess]: success,
+    [classes.startButtonFailure]: failure,
   })
 
   const handleStartButtonClick = () => {
     if (!inProgress) {
+      setError("")
       setSuccess(false)
       setInProgress(true)
       bluetoothStart().catch((error) => handleBluetoothError(error))
       timer.current = window.setTimeout(() => {
-        setSuccess(true)
+        if (failure === false)
+          setSuccess(true)
         setInProgress(false)
       }, 8000)
     }
   }
 
   const handleEndButtonClick = () => {
-    // Always run BluetoothEnd() ; meanwhile if start button is green, reset it
+    // Always run BluetoothEnd() and reset the color of start button
     bluetoothEnd()
-    if (success) {
-      setSuccess(false)
-    }
+    setSuccess(false)
+    setFailure(false)
   }
 
   const logProgress = (x: any) => {
@@ -140,7 +151,9 @@ const App = () => {
   const handleBluetoothError = (error: { toString: () => string }) => {
     if (error.toString().match(/User cancelled/))
       return // User's cancellation won't be considered as an error
-    else if (!navigator.bluetooth)
+      
+    setFailure(true)
+    if (!navigator.bluetooth)
       setError("找不到蓝牙硬件，或浏览器不支持。\n\n请参考下方“疑难解答”。")
     else if (error.toString().match(/User denied the browser permission/))
       setError("蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请查看“疑难解答”。")
