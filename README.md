@@ -3,7 +3,7 @@
 
 ## 🏃 使用
 - 🌎 开始使用： https://water.celes.workers.dev
-- 🔩 备用线路： https://celeswuff.github.io/water/
+- 🔩 备用线路： https://celeswuff.github.io/waterctl/
 
 ## ✨ 特性
 - ⚛️ 使用开放的 Web 技术构建
