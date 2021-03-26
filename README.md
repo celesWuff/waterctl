@@ -34,5 +34,5 @@
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[chrome-screenshot]: images/chrome.jpeg
-[pwa-screenshot]: images/pwa.jpeg
+[chrome-screenshot]: repo/chrome.jpeg
+[pwa-screenshot]: repo/pwa.jpeg
