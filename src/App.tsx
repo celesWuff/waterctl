@@ -92,6 +92,7 @@ const App = () => {
     if (!inProgress) {
       setError("")
       setSuccess(false)
+      setFailure(false)
       setInProgress(true)
       bluetoothStart().catch((error) => handleBluetoothError(error))
       timer.current = window.setTimeout(() => {
