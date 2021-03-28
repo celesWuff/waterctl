@@ -68,6 +68,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const App = () => {
   const classes = useStyles()
   const [inProgress, setInProgress] = React.useState(false)
+  // progress = -1: indeterminate; = 0 to 100: percentage
+  const [progress, setProgress] = React.useState(0)
   // success & failure: indicates the color of start button
   const [success, setSuccess] = React.useState(false)
   const [failure, setFailure] = React.useState(false)
@@ -75,13 +77,6 @@ const App = () => {
   const [error, setError] = React.useState("")
   const [gattServer, setGattServer] = React.useState(Object)
   const [characteristic, setCharacteristic] = React.useState(Object)
-  const timer = React.useRef<number>()
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(timer.current)
-    }
-  }, [])
 
   const startButtonClassname = clsx({
     [classes.startButtonSuccess]: success,
@@ -94,12 +89,13 @@ const App = () => {
       setSuccess(false)
       setFailure(false)
       setInProgress(true)
-      bluetoothStart().catch((error) => handleBluetoothError(error))
-      timer.current = window.setTimeout(() => {
-        if (failure === false)
+      setProgress(-1)
+      bluetoothStart()
+        .then(_ => {
           setSuccess(true)
-        setInProgress(false)
-      }, 8000)
+          setInProgress(false)
+        })
+        .catch((error) => handleBluetoothError(error))
     }
   }
 
@@ -124,22 +120,27 @@ const App = () => {
       optionalServices: [0xF1F0]
     })
     logProgress(bluetoothDevice)
+    setProgress(20)
     // Step 2/5
     let gattServer = await bluetoothDevice.gatt!.connect()
     setGattServer(gattServer)
     logProgress(gattServer)
+    setProgress(40)
     // Step 3/5
     let service = await gattServer.getPrimaryService(0xF1F0)
     logProgress(service)
+    setProgress(60)
     // Step 4/5
     // Target characteristic name = TXD, uuid = 0xF1F1
     let characteristic = await service.getCharacteristic(0xF1F1)
     setCharacteristic(characteristic)
     logProgress(characteristic)
+    setProgress(80)
     // Step 5/5
     const startPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB2, 0x01, 0x2B, 0xDC, 0x00, 0x70, 0xE2, 0xEB, 0x20, 0x01, 0x01, 0x00, 0x00, 0x00, 0x6C, 0x30, 0x00])
     console.log("Writing: ", startPayload)
     await characteristic.writeValue(startPayload)
+    setProgress(100)
   }
 
   const bluetoothEnd = async () => {
@@ -150,9 +151,10 @@ const App = () => {
   }
 
   const handleBluetoothError = (error: { toString: () => string }) => {
-    if (error.toString().match(/User cancelled/))
+    setInProgress(false)
+    if (error.toString().match(/User cancelled/)) 
       return // User's cancellation won't be considered as an error
-      
+
     setFailure(true)
     if (!navigator.bluetooth)
       setError("找不到蓝牙硬件，或浏览器不支持。\n\n请参考下方“疑难解答”。")
@@ -163,7 +165,6 @@ const App = () => {
     else
       setError("未知错误：\n" + error.toString() + "\n\n这可能是一个Bug，请截图并反馈给开发者。")
   }
-
 
   return (
     <div className={classes.root}>
@@ -182,7 +183,8 @@ const App = () => {
                 disabled={inProgress}
                 onClick={handleStartButtonClick}>
                 启动
-              {inProgress && <CircularProgress size={24} className={classes.buttonProgress} />}
+                {inProgress && progress < 0 && <CircularProgress size={24} className={classes.buttonProgress} />}
+                {inProgress && progress >= 0 && <CircularProgress size={24} className={classes.buttonProgress} variant="determinate" value={progress} />}
               </Button>
               <Button
                 variant="contained"
