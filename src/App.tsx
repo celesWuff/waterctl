@@ -120,7 +120,7 @@ const App = () => {
       filters: (Array.from("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
         .map(c => ({ namePrefix: c })) as Array<any>)
         .concat({ name: "" }),
-      optionalServices: [0xF1F0]
+      optionalServices: ["generic_access"]
     })
     logProgress(bluetoothDevice)
     setProgress(20)
