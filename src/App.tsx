@@ -117,7 +117,7 @@ const App = () => {
     // Step 1/5
     let bluetoothDevice = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "Water" }],
-      optionalServices: [0xF1F0]
+      optionalServices: ["generic_access"]
     })
     logProgress(bluetoothDevice)
     setProgress(20)
