@@ -116,7 +116,10 @@ const App = () => {
     // BLE device (a.k.a peripheral) => GATT server => service => characteristic => writeValue()
     // Step 1/5
     let bluetoothDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: "Water" }],
+      // Thanks to https://github.com/WebBluetoothCG/web-bluetooth/issues/234
+      filters: (Array.from("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        .map(c => ({ namePrefix: c })) as Array<any>)
+        .concat({ name: "" }),
       optionalServices: [0xF1F0]
     })
     logProgress(bluetoothDevice)
@@ -152,7 +155,7 @@ const App = () => {
 
   const handleBluetoothError = (error: { toString: () => string }) => {
     setInProgress(false)
-    if (error.toString().match(/User cancelled/)) 
+    if (error.toString().match(/User cancelled/))
       return // User's cancellation won't be considered as an error
 
     setFailure(true)
