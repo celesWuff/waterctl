@@ -1,38 +1,22 @@
-# 🛀 蓝牙水控器 FOSS
-深圳市常工电子“蓝牙水控器”控制程序的开源实现。适用于国内各大高校宿舍热水器。
+# NEXT
+蓝牙水控器 FOSS 的“下一代”版本。
 
-## 🏃 使用
-- 🌎 开始使用： https://water.celes.workers.dev
-- 🔩 备用线路： https://celeswuff.github.io/waterctl/
+## 为什么？
+当前版本的蓝牙水控器 FOSS 与原版微信小程序相比，仍有一部分功能上的缺失。（如“直连上次使用设备”）
 
-## ✨ 特性
-- ⚛️ 使用开放的 Web 技术构建
-- 🖕 完全脱离“微信”，夺回对科技的控制权
-- 💡 简洁，明确，美观的操作界面
-- 🌐 真正离线使用，不依赖互联网连接（你可以在离线状态下打开本应用的链接）
-- ⚡ 响应速度极快
-- 🔥 简化的交互逻辑
-- 🖥️ 支持 PWA，可在 Chrome/Edge 里点击地址栏右边的 ➕ 安装到电脑或手机
-- 📱 支持 Windows/Linux/macOS/Android/iOS/ChromeOS
-- 👍 开放源代码
-- 🛠 更多特性开发中
+然而，实现这部分功能所需的相关 API 目前仍未被任何主流浏览器所实现，或尚未默认启用。
 
-## 📦️ 构建
-| 命令 | 说明 |
-| ---- | ---- |
-| `yarn install` | 安装项目依赖 |
-| `yarn start` | 启动本地开发服务端 |
-| `yarn build` | 生成构建 |
+NEXT 分支的用途就是提前实现这部分功能，在主流浏览器支持后第一时间合并到 master 分支。
 
-## 📜 开源许可
-基于 [MIT license](https://opensource.org/licenses/MIT) 许可进行开源。
+（不要指望 NEXT 新增的功能立刻可用。）
 
-## 🖼️ 截图
-[![chrome][chrome-screenshot]](https://water.celes.workers.dev)
-[![pwa][pwa-screenshot]](https://water.celes.workers.dev)
+另外，NEXT 分支也会包含其他实验性的新功能，类似其他软件的“Dev”或“Canary”分支。
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+## 神秘代码
+https://water-next.celes.workers.dev
 
-[chrome-screenshot]: repo/chrome.jpeg
-[pwa-screenshot]: repo/pwa.jpeg
+## TODO
+- [x] 显示所有蓝牙设备
+- [ ] “直连上次使用设备”
+- [ ] 打开页面时自动连接
+- [ ] 待追加
