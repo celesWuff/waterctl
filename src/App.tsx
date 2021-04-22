@@ -156,10 +156,10 @@ const App = () => {
       return // User's cancellation won't be considered as an error
 
     setFailure(true)
-    if (!navigator.bluetooth)
-      setError("找不到蓝牙硬件，或浏览器不支持。\n\n请参考下方“疑难解答”。")
+    if (!navigator.bluetooth || error.toString().match(/Bluetooth adapter not available/))
+      setError("找不到蓝牙硬件，或浏览器不支持。\n\n限于篇幅，详情请参考下方“疑难解答”。")
     else if (error.toString().match(/User denied the browser permission/))
-      setError("蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请查看“疑难解答”。")
+      setError("蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请参考下方“疑难解答”。")
     else if (error.toString().match(/NetworkError/))
       setError("连接不稳定，无法与水控器建立连接。\n请重试。")
     else
