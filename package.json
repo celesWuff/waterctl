@@ -1,6 +1,6 @@
 {
   "name": "waterctl",
-  "version": "0.3.1-next",
+  "version": "0.4.1-next",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
