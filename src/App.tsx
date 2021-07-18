@@ -205,7 +205,7 @@ const App = () => {
     else if (error.toString().match(/NetworkError/))
       setErrorMsg("连接不稳定，无法与水控器建立连接。\n请重试。")
     else if (error.toString().match(/Quick start failed/))
-      setErrorMsg("快速启动暂不好使。\n请使用传统方式启动。")
+      setErrorMsg("快速启动暂不好使。\n请点击“启动”，重新开始。")
     else
       setErrorMsg("未知错误：\n" + error.toString() + "\n\n这可能是一个Bug，请截图并反馈给开发者。")
   }
