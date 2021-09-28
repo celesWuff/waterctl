@@ -176,7 +176,9 @@ const App = () => {
     // Generate device name checksum and fill into payload
     // A custom CRC-16. I'll call it... CRC-16/ChangGong
     let crc16cg = new CRC("CRC16", 16, 0x8005, 0xE808, 0x0000, true, true)
-    let checksum = crc16cg.compute(Buffer.from(bluetoothDevice.name!.slice(-5), "ascii")).toString(16)
+    let enc = new TextEncoder();
+    let checksum = crc16cg.compute(Array.from(enc.encode(bluetoothDevice.name!.slice(-5)))).toString(16)
+    // Flip the two bytes. Sorry for the dirty hack.
     let checksumByteOne = parseInt("0x" + checksum.slice(2, 4))
     let checksumByteTwo = parseInt("0x" + checksum.slice(0, 2))
     const startPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB2, 0x01, checksumByteOne, checksumByteTwo, 0x00, 0x70, 0xE2, 0xEB, 0x20, 0x01, 0x01, 0x00, 0x00, 0x00, 0x6C, 0x30, 0x00])
