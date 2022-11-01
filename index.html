@@ -1,1 +1,167 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><link rel="icon" href="./favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="深圳市常工电子“蓝牙水控器”控制程序的开源实现。适用于国内各大高校宿舍热水器。"/><link rel="apple-touch-icon" href="./logo192.png"/><link rel="manifest" href="./manifest.json"/><title>蓝牙水控器 FOSS</title><link href="./static/css/main.95aadb73.chunk.css" rel="stylesheet"></head><body><noscript>需要启用 JavaScript 以使用本应用。</noscript><div id="root"></div><script>!function(e){function t(t){for(var n,l,a=t[0],f=t[1],i=t[2],p=0,s=[];p<a.length;p++)l=a[p],Object.prototype.hasOwnProperty.call(o,l)&&o[l]&&s.push(o[l][0]),o[l]=0;for(n in f)Object.prototype.hasOwnProperty.call(f,n)&&(e[n]=f[n]);for(c&&c(t);s.length;)s.shift()();return u.push.apply(u,i||[]),r()}function r(){for(var e,t=0;t<u.length;t++){for(var r=u[t],n=!0,a=1;a<r.length;a++){var f=r[a];0!==o[f]&&(n=!1)}n&&(u.splice(t--,1),e=l(l.s=r[0]))}return e}var n={},o={1:0},u=[];function l(t){if(n[t])return n[t].exports;var r=n[t]={i:t,l:!1,exports:{}};return e[t].call(r.exports,r,r.exports,l),r.l=!0,r.exports}l.m=e,l.c=n,l.d=function(e,t,r){l.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},l.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},l.t=function(e,t){if(1&t&&(e=l(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(l.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var n in e)l.d(r,n,function(t){return e[t]}.bind(null,n));return r},l.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return l.d(t,"a",t),t},l.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},l.p="./";var a=this.webpackJsonpwaterctl=this.webpackJsonpwaterctl||[],f=a.push.bind(a);a.push=t,a=a.slice();for(var i=0;i<a.length;i++)t(a[i]);var c=f;r()}([])</script><script src="./static/js/2.54dddce7.chunk.js"></script><script src="./static/js/main.9646aae7.chunk.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="深圳市常工电子“蓝牙水控器”控制程序的开源实现。适用于国内各大高校宿舍热水器。" />
+    <meta name="theme-color" content="#fafafa" />
+    <link rel="apple-touch-icon" href="logo192.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="light.min.css"> <!-- https://watercss.kognise.dev/ -->
+    <title>蓝牙水控器 FOSS</title>
+    <style>
+        body {
+            background-color: #fafafa;
+        }
+
+        div {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <noscript>需要启用 JavaScript。</noscript>
+        <button id="main-button" onclick="handleButtonClick()">开启</button>
+        <p id="device-name" style="margin-top: 10px; margin-bottom: 10px;">未连接</p>
+        <p id="status" style="margin: 0;"></p>
+    </div>
+    <dialog id="dialog">
+        <header>出现错误</header>
+        <form method="dialog">
+            <p id="dialog-content"></p>
+            <menu style="display: flex; justify-content: flex-end;">
+                <button onclick="succeeded = false">好</button>
+            </menu>
+        </form>
+    </dialog>
+</body>
+
+<script>
+    function crc16changgong(data) {
+        let crc = 0x1017;
+        for (let i = 0; i < data.length; i++) {
+            crc ^= data.charCodeAt(i);
+            for (let j = 0; j < 8; j++) {
+                if ((crc & 0x0001) == 1) {
+                    crc >>= 1;
+                    crc ^= 0xA001;
+                } else crc >>= 1;
+            }
+        }
+        return crc;
+    }
+
+    function makePayload(deviceName) {
+        const checksum = crc16changgong(deviceName.slice(-5));
+        // prettier-ignore
+        return new Uint8Array([
+            0xFE, 0xFE, 0x09, 0xB2,
+            0x01, checksum & 0xFF, checksum >> 8, 0x00,
+            0x70, 0xE2, 0xEB, 0x20,
+            0x01, 0x01, 0x00, 0x00,
+            0x00, 0x6C, 0x30, 0x00
+        ]);
+    }
+
+    let bluetoothDevice;
+    let characteristic;
+    let isStarted = false;
+
+    function updateUi(stage) {
+        const mainButton = document.getElementById("main-button");
+        const deviceName = document.getElementById("device-name");
+        const status = document.getElementById("status");
+        switch (stage) {
+            case "pending":
+                mainButton.innerText = "请稍后";
+                mainButton.disabled = true;
+                deviceName.innerText = "已连接：" + bluetoothDevice.name;
+                break;
+            case "ok":
+                mainButton.innerText = "结束";
+                mainButton.disabled = false;
+                break;
+            case "standby":
+                mainButton.innerText = "开启";
+                mainButton.disabled = false;
+                deviceName.innerText = "未连接";
+                break;
+        }
+    }
+
+    async function handleBluetoothError(error) {
+        // this is so fucking ugly but i have no choice
+        // you would never know how those shitty browsers behave
+        if (error.toString().match(/User cancelled/) || error.toString() == "2") return; // "2" is a weird behavior of Bluefy browser on iOS
+        const dialogContent = document.getElementById("dialog-content");
+        if (!navigator.bluetooth || error.toString().match(/Bluetooth adapter not available/)) {
+            dialogContent.innerText = "找不到蓝牙硬件，或浏览器不支持。\n\n限于篇幅，详情请参考源代码仓库内的“疑难解答”。";
+        } else if (error.toString().match(/User denied the browser permission/)) {
+            dialogContent.innerText = "蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请参考源代码仓库内的“疑难解答”。";
+        } else if (error.toString().match(/NetworkError/)) {
+            dialogContent.innerText = "连接不稳定，无法与水控器建立连接。\n请重试。";
+        } else {
+            dialogContent.innerText = error + "\n\n是什么呢\n\n（这可能是一个Bug，请截图并反馈给开发者。）";
+        }
+        document.getElementById("dialog").showModal();
+        if (bluetoothDevice) await bluetoothDevice.gatt.disconnect();
+        isStarted = false;
+        updateUi("standby");
+    }
+
+    async function start() {
+        try {
+            bluetoothDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: "Water" }],
+                optionalServices: ["generic_access"] // actually it's better to use 0xF1F0 instead of "generic_access" but it will trigger a bug on Bluefy
+            });
+            updateUi("pending");
+            const server = await bluetoothDevice.gatt.connect();
+            const service = await server.getPrimaryService(0xF1F0);
+            characteristic = await service.getCharacteristic(0xF1F1);
+            await characteristic.writeValue(makePayload(bluetoothDevice.name));
+            isStarted = true;
+            updateUi("ok");
+        } catch (error) {
+            handleBluetoothError(error);
+        }
+    }
+
+    async function end() {
+        try {
+            const endPayload = new Uint8Array([0xFE, 0xFE, 0x09, 0xB3, 0x00, 0x00])
+            await characteristic.writeValue(endPayload)
+            await bluetoothDevice.gatt.disconnect();
+            isStarted = false;
+            updateUi("standby");
+        } catch (error) {
+            handleBluetoothError(error);
+        }
+    }
+
+    function handleButtonClick() {
+        isStarted ? end() : start();
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://api.countapi.xyz/hit/waterctl/visits");
+    xhr.responseType = "json";
+    xhr.send();
+
+    if (navigator.serviceWorker && !navigator.serviceWorker.controller) {
+        navigator.serviceWorker.register('serviceworker.js');
+    }
+</script>
+
+</html>
