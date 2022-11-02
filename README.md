@@ -3,7 +3,7 @@
 
 ## 🏃 使用
 - 🌎 开始使用： https://celeswuff.github.io/waterctl/
-- 不能用？请先看看”疑难解答“： https://github.com/celesWuff/waterctl/blob/master/FAQ.md
+- 不能用？请先看看”疑难解答“： https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md
 
 ## ✨ 特性
 - 🌐 真正离线使用，不依赖互联网连接（你可以在离线状态下打开本应用的链接）
