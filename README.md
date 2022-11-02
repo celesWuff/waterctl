@@ -1,8 +1,12 @@
 # 🛀 蓝牙水控器 FOSS
-深圳市常工电子“蓝牙水控器”控制程序的开源实现。适用于国内各大高校宿舍热水器。
+注意：当前分支 `master` 为旧版本的存档，新版本已发布至当前默认分支 `gh-pages`。
+
+保留原分支名 `master` 仅出于兼容性考虑，并非指代当前积极开发的分支。
+
+新版本完全重写，更小更快。推荐所有用户迁移到新版本。
 
 ## 🏃 使用
-- 🌎 开始使用： https://water.celes.workers.dev
+- 🌎 开始使用： ~~https://water.celes.workers.dev~~
 - 🔩 备用线路： https://celeswuff.github.io/waterctl/
 
 ## ✨ 特性
