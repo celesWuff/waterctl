@@ -124,7 +124,7 @@
         try {
             bluetoothDevice = await navigator.bluetooth.requestDevice({
                 filters: [{ namePrefix: "Water" }],
-                optionalServices: ["generic_access"] // actually it's better to use 0xF1F0 instead of "generic_access" but it will trigger a bug on Bluefy
+                optionalServices: [window.navigator.userAgent.match(/Bluefy/) ? "generic_access" : 0xF1F0] // workaround for Bluefy
             });
             updateUi("pending");
             const server = await bluetoothDevice.gatt.connect();
