@@ -46,8 +46,8 @@
     <div class="misc">
         <button id="install-button" hidden>将蓝牙水控器 FOSS 安装到系统</button>
         <p style="font-size: smaller; color: gray; margin: 0%;">
-            <a href="https://github.com/celesWuff/waterctl">源代码</a> · <a
-                href="https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md">疑难解答</a><br>
+            <a href="https://github.com/celesWuff/waterctl" target="_blank">源代码</a> · <a
+                href="https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md" target="_blank">疑难解答</a><br>
             <span style="font-size: smaller;">copyright (c) 2023 celesWuff, licensed under MIT License</span>
         </p>
     </div>
@@ -127,10 +127,10 @@
             dialogContent.innerText = "连接不稳定，无法与水控器建立连接。\n请重试。";
         } else if (!navigator.bluetooth || error.toString().match(/Bluetooth adapter not available/) || error.toString().match(/NotFoundError/)) {
             dialogContent.innerText = "找不到蓝牙硬件，或浏览器不支持。\n\n限于篇幅，详情请参考源代码仓库内的";
-            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md'>“疑难解答”</a>。"
+            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md' target='_blank'>“疑难解答”</a>。"
         } else {
             dialogContent.innerText = error + "\n\n是什么呢\n\n（这可能是一个Bug，请截图并";
-            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl'>反馈给开发者</a>。）"
+            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl' target='_blank'>反馈给开发者</a>。）"
         }
         document.getElementById("dialog").showModal();
         if (bluetoothDevice) await bluetoothDevice.gatt.disconnect();
