@@ -105,14 +105,14 @@
         // you would never know how those shitty browsers behave
         if (error.toString().match(/User cancelled/) || error.toString() == "2") return; // "2" is a weird behavior of Bluefy browser on iOS
         const dialogContent = document.getElementById("dialog-content");
-        if (!navigator.bluetooth || error.toString().match(/Bluetooth adapter not available/) || error.toString().match(/NotFoundError/)) {
-            dialogContent.innerText = "找不到蓝牙硬件，或浏览器不支持。\n\n限于篇幅，详情请参考源代码仓库内的";
-            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md'>“疑难解答”</a>。"
-        } else if (error.toString().match(/User denied the browser permission/)) {
+        if (error.toString().match(/User denied the browser permission/)) {
             dialogContent.innerText = "蓝牙权限遭拒。\n\n请前往手机设置，授予浏览器“位置信息”权限。\n此权限不会用于定位，详情请参考源代码仓库内的";
             dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md'>“疑难解答”</a>。"
         } else if (error.toString().match(/NetworkError/)) {
             dialogContent.innerText = "连接不稳定，无法与水控器建立连接。\n请重试。";
+        } else if (!navigator.bluetooth || error.toString().match(/Bluetooth adapter not available/) || error.toString().match(/NotFoundError/)) {
+            dialogContent.innerText = "找不到蓝牙硬件，或浏览器不支持。\n\n限于篇幅，详情请参考源代码仓库内的";
+            dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md'>“疑难解答”</a>。"
         } else {
             dialogContent.innerText = error + "\n\n是什么呢\n\n（这可能是一个Bug，请截图并";
             dialogContent.innerHTML += "<a href='https://github.com/celesWuff/waterctl'>反馈给开发者</a>。）"
