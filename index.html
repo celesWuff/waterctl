@@ -16,7 +16,7 @@
             background-color: #fafafa;
         }
 
-        div {
+        .main {
             position: absolute;
             left: 50%;
             top: 50%;
@@ -26,15 +26,30 @@
             align-items: center;
             flex-direction: column;
         }
+
+        .misc {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            margin: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div>
+    <div class="main">
         <noscript>需要启用 JavaScript。</noscript>
-        <button id="main-button" onclick="handleButtonClick()">开启</button>
+        <button id="main-button" onclick="handleButtonClick()" style="margin: 0%;">开启</button>
         <p id="device-name" style="margin-top: 10px; margin-bottom: 10px;">未连接</p>
         <p id="status" style="margin: 0;"></p>
+    </div>
+    <div class="misc">
+        <button id="install-button" hidden>将蓝牙水控器 FOSS 安装到系统</button>
+        <p style="font-size: smaller; color: gray; margin: 0%;">
+            <a href="https://github.com/celesWuff/waterctl">源代码</a> · <a
+                href="https://github.com/celesWuff/waterctl/blob/gh-pages/FAQ.md">疑难解答</a><br>
+            <span style="font-size: smaller;">copyright (c) 2023 celesWuff, licensed under MIT License</span>
+        </p>
     </div>
     <dialog id="dialog">
         <header>出现错误</header>
@@ -165,6 +180,30 @@
     if (navigator.serviceWorker && !navigator.serviceWorker.controller) {
         navigator.serviceWorker.register('serviceworker.js');
     }
+
+    // pwa install prompt
+    const installButton = document.getElementById('install-button');
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        window.deferredPrompt = event;
+        installButton.hidden = false;
+    });
+
+    installButton.addEventListener('click', async () => {
+        const promptEvent = window.deferredPrompt;
+        if (!promptEvent) {
+            return;
+        }
+        promptEvent.prompt();
+        const result = await promptEvent.userChoice;
+        window.deferredPrompt = null;
+        installButton.hidden = true;
+    });
+
+    window.addEventListener('appinstalled', (event) => {
+        window.deferredPrompt = null;
+    });
 </script>
 
 </html>
